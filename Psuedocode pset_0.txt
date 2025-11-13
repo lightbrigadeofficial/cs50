@@ -1,0 +1,58 @@
+I have 4 sprites: an F1 car, a "go!" which pops up when lights go off, Traffic light and A splash screen.
+Script for Splash Screen:
+	when green flag clicked
+	SplashScreen_Trigger
+	
+	define {SplashScreen_Trigger}
+	show
+	go to [Front v] layer
+	set [RaceState v] to (Ready)
+	set [ReactionTime v] to (0)
+	
+	when [s v] key pressed
+	broadcast (Start! v)
+	hide
+Script for Traffic Light:
+	when I recieve [Start! v]
+	switch costume to (lights_on v)
+	set [RaceState v] to (Ready)
+	wait (1) seconds
+	broadcast (StartSequence v)
+	
+	when I recieve [StartSequence v]
+	StartSequence
+	
+	define {StartSequence}
+	set [RaceState v] to (Waiting)
+	wait (pick random (2) to (5)) seconds
+	switch costume to (lights_off v)
+	set [RaceState v] to (Green)
+	broadcast (Go!)
+Script for Go pop up:
+	when I recieve [Go! v]
+	show
+	go to [front v] layer
+	start sound (store-scanner-beep-90395 v)
+	wait (1) seconds
+	hide
+Script for F1 car:
+	when I recieve [Start! v]
+	go to x: (0) y: (-100)
+	set [ReactionTime v] to (0)
+	repeat (5)
+		say (Wait for lights to go OFF, then press SPACE!) for (0.4) seconds
+		wait (0.1) seconds
+	
+	when I recive [Go! v]
+	reset timer
+	
+	when [space v]` key pressed
+	if <(RaceState) = (Green)> then
+		set [ReactionTime v] tp (timer)
+		say (join (Reaction Time: ) (join (ReactionTime) (Secs) for (2) seconds))
+		if <<(BestTime) = (0)> or <(ReactionTime) < (BestTime)>> then
+			set [BestTime v] to (ReactionTime)
+			say (NEW BEST!) for (1) seconds
+	else
+		if <(RaceState) = (Waiting)> then
+			say (FALSE START!) for (2) seconds
